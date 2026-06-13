@@ -1,0 +1,266 @@
+--// =========================================
+--// ULTRA EMOTION MULTI-LANGUAGE AI
+--// FULL VERSION + API LOGIN UI
+--// Delta Executor Ready
+--// =========================================
+
+-- ===== OPENROUTER KEY =====
+local API_KEY = ""
+
+local HttpService = game:GetService("HttpService")
+
+local request =
+    (syn and syn.request) or
+    (http and http.request) or
+    (http_request)
+
+-- =========================================
+-- GUI
+-- =========================================
+
+local gui = Instance.new("ScreenGui")
+gui.Name = "UltraEmotionAI"
+gui.ResetOnSpawn = false
+gui.Parent = game.CoreGui
+
+-- =========================================
+-- API LOGIN UI
+-- =========================================
+
+local loginFrame = Instance.new("Frame")
+loginFrame.Parent = gui
+loginFrame.Size = UDim2.new(0,350,0,180)
+loginFrame.Position = UDim2.new(0.5,-175,0.5,-90)
+loginFrame.BackgroundColor3 = Color3.fromRGB(20,20,20)
+loginFrame.BorderSizePixel = 0
+
+Instance.new("UICorner",loginFrame).CornerRadius = UDim.new(0,12)
+
+local loginTitle = Instance.new("TextLabel")
+loginTitle.Parent = loginFrame
+loginTitle.Size = UDim2.new(1,0,0,40)
+loginTitle.BackgroundTransparency = 1
+loginTitle.Text = "🔑 Nhập OpenRouter API Key"
+loginTitle.TextColor3 = Color3.new(1,1,1)
+loginTitle.Font = Enum.Font.GothamBold
+loginTitle.TextScaled = true
+
+local keyBox = Instance.new("TextBox")
+keyBox.Parent = loginFrame
+keyBox.Size = UDim2.new(0.9,0,0,40)
+keyBox.Position = UDim2.new(0.05,0,0.35,0)
+keyBox.BackgroundColor3 = Color3.fromRGB(35,35,35)
+keyBox.TextColor3 = Color3.new(1,1,1)
+keyBox.PlaceholderText = "sk-or-v1-..."
+keyBox.Text = ""
+
+Instance.new("UICorner",keyBox).CornerRadius = UDim.new(0,8)
+
+local enterBtn = Instance.new("TextButton")
+enterBtn.Parent = loginFrame
+enterBtn.Size = UDim2.new(0.5,0,0,40)
+enterBtn.Position = UDim2.new(0.25,0,0.68,0)
+enterBtn.BackgroundColor3 = Color3.fromRGB(60,130,255)
+enterBtn.Text = "🚀 Vào AI"
+enterBtn.TextColor3 = Color3.new(1,1,1)
+enterBtn.Font = Enum.Font.GothamBold
+enterBtn.TextScaled = true
+
+Instance.new("UICorner",enterBtn).CornerRadius = UDim.new(0,8)
+
+-- =========================================
+-- MAIN FRAME
+-- =========================================
+
+local frame = Instance.new("Frame")
+frame.Parent = gui
+frame.Size = UDim2.new(0,470,0,370)
+frame.Position = UDim2.new(0.5,-235,0.5,-185)
+frame.BackgroundColor3 = Color3.fromRGB(18,18,18)
+frame.BorderSizePixel = 0
+frame.Visible = false
+
+local corner = Instance.new("UICorner", frame)
+corner.CornerRadius = UDim.new(0,14)
+
+-- STATUS
+local status = Instance.new("TextLabel")
+status.Parent = frame
+status.Size = UDim2.new(1,0,0,30)
+status.BackgroundTransparency = 1
+status.Text = "🔴 Offline"
+status.TextColor3 = Color3.new(1,1,1)
+status.Font = Enum.Font.GothamBold
+status.TextScaled = true
+
+-- MOOD
+local moodText = Instance.new("TextLabel")
+moodText.Parent = frame
+moodText.Size = UDim2.new(1,0,0,28)
+moodText.Position = UDim2.new(0,0,0,28)
+moodText.BackgroundTransparency = 1
+moodText.Text = "🧠 Mood: bình thường 😐"
+moodText.TextColor3 = Color3.fromRGB(255,255,255)
+moodText.Font = Enum.Font.GothamBold
+moodText.TextScaled = true
+
+-- OUTPUT
+local scroll = Instance.new("ScrollingFrame")
+scroll.Parent = frame
+scroll.Size = UDim2.new(1,-20,0,220)
+scroll.Position = UDim2.new(0,10,0,60)
+scroll.BackgroundTransparency = 1
+scroll.BorderSizePixel = 0
+scroll.CanvasSize = UDim2.new(0,0,0,0)
+scroll.ScrollBarThickness = 5
+
+local output = Instance.new("TextLabel")
+output.Parent = scroll
+output.Size = UDim2.new(1,-10,0,0)
+output.BackgroundTransparency = 1
+output.TextWrapped = true
+output.AutomaticSize = Enum.AutomaticSize.Y
+output.TextYAlignment = Enum.TextYAlignment.Top
+output.TextXAlignment = Enum.TextXAlignment.Left
+output.TextColor3 = Color3.new(1,1,1)
+output.Font = Enum.Font.Gotham
+output.TextSize = 17
+output.RichText = true
+output.Text = "🤖 Ultra Emotion AI Ready..."
+
+local function updateScroll()
+	task.wait()
+	scroll.CanvasSize = UDim2.new(0,0,0,output.TextBounds.Y + 25)
+	scroll.CanvasPosition = Vector2.new(0, math.max(0, output.TextBounds.Y))
+end
+
+-- INPUT
+local box = Instance.new("TextBox")
+box.Parent = frame
+box.Size = UDim2.new(0.68,0,0,42)
+box.Position = UDim2.new(0,10,1,-55)
+box.BackgroundColor3 = Color3.fromRGB(35,35,35)
+box.TextColor3 = Color3.new(1,1,1)
+box.PlaceholderText = "Nhập tin nhắn..."
+box.Font = Enum.Font.Gotham
+box.TextSize = 18
+
+Instance.new("UICorner", box).CornerRadius = UDim.new(0,8)
+
+-- SEND
+local send = Instance.new("TextButton")
+send.Parent = frame
+send.Size = UDim2.new(0.25,0,0,42)
+send.Position = UDim2.new(0.73,0,1,-55)
+send.BackgroundColor3 = Color3.fromRGB(60,130,255)
+send.TextColor3 = Color3.new(1,1,1)
+send.Font = Enum.Font.GothamBold
+send.TextScaled = true
+send.Text = "📡 Gửi"
+
+Instance.new("UICorner", send).CornerRadius = UDim.new(0,8)
+
+-- LOGIN EVENT
+enterBtn.MouseButton1Click:Connect(function()
+
+	if keyBox.Text == "" then
+		loginTitle.Text = "❌ Nhập API Key trước"
+		return
+	end
+
+	API_KEY = keyBox.Text
+
+	loginFrame.Visible = false
+	frame.Visible = true
+
+	status.Text = "🟡 Sẵn sàng"
+end)
+
+-- MEMORY + AI LOGIC (GIỮ NGUYÊN)
+local memory = {}
+local userName = "bạn"
+
+local function addMemory(role,text)
+	table.insert(memory,{role=role,content=text})
+	if #memory > 16 then table.remove(memory,1) end
+end
+
+local function learn(msg)
+	local low = msg:lower()
+	if string.find(low,"tôi tên là") then
+		userName = msg:gsub("tôi tên là","")
+	end
+end
+
+math.randomseed(tick())
+
+local function callAPI(prompt)
+
+	if API_KEY == "" then return nil end
+
+	local messages = {
+		{role="system",content="AI trò chuyện tự nhiên"}
+	}
+
+	for _,v in pairs(memory) do
+		table.insert(messages,v)
+	end
+
+	table.insert(messages,{role="user",content=prompt})
+
+	local ok,res = pcall(function()
+		return request({
+			Url="https://openrouter.ai/api/v1/chat/completions",
+			Method="POST",
+			Headers={
+				["Content-Type"]="application/json",
+				["Authorization"]="Bearer "..API_KEY
+			},
+			Body=HttpService:JSONEncode({
+				model="openai/gpt-4o-mini",
+				messages=messages,
+				max_tokens=1000
+			})
+		})
+	end)
+
+	if ok and res and res.Body then
+		local data = HttpService:JSONDecode(res.Body)
+		if data and data.choices then
+			return data.choices[1].message.content
+		end
+	end
+
+	return nil
+end
+
+send.MouseButton1Click:Connect(function()
+
+	local msg = box.Text
+	if msg == "" then return end
+
+	box.Text = ""
+	addMemory("user",msg)
+
+	output.Text = "⏳ đang xử lý..."
+	updateScroll()
+
+	task.spawn(function()
+
+		local reply = callAPI(msg)
+
+		if reply then
+			status.Text = "🟢 Online"
+		else
+			status.Text = "🔴 Offline"
+			reply = "🤔 Offline mode"
+		end
+
+		addMemory("assistant",reply)
+
+		output.Text = reply
+		updateScroll()
+	end)
+end)
+
+updateScroll()
